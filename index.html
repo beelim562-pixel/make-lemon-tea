@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sunshine Cafe — Make Lemon Tea</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #FFF8F0;
+      --ink: #332722;
+      --muted: #7A6458;
+      --wood: #5C3A21;
+      --wood2: #8D5B4C;
+      --yellow: #FFD166;
+      --green: #1B7A4E;
+      --blue: #118AB2;
+      --line: #E8D5C4;
+      --ok: #2A9D8F;
+      --bad: #C1121F;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Fredoka", "Noto Sans TC", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100dvh;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    button:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+    .app { max-width: 920px; margin: 0 auto; padding: 16px 16px 40px; }
+    header.bar {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--wood); color: #fff;
+      border-radius: 20px; padding: 10px 14px; margin-bottom: 16px;
+    }
+    header.bar img { width: 52px; height: 52px; border-radius: 14px; background: #fff; object-fit: cover; }
+    header.bar h1 { font-size: 1.15rem; margin: 0; line-height: 1.2; }
+    header.bar p { margin: 2px 0 0; font-size: .85rem; color: var(--yellow); }
+    .grow { flex: 1; }
+    .icon-btn {
+      min-width: 64px; min-height: 64px; border-radius: 16px;
+      border: 3px solid #fff; background: var(--wood2); color: #fff; font-size: 1.4rem;
+    }
+    .screen { display: none; }
+    .screen.on { display: block; }
+    .hero { text-align: center; }
+    .hero img.mascot { width: min(220px, 50vw); height: auto; border-radius: 24px; }
+    .en {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700; line-height: 1.25; margin: 12px 0 4px;
+      text-wrap: pretty;
+    }
+    .zh { font-size: 1rem; color: var(--muted); margin: 0 0 16px; }
+    .ticket {
+      background: #fff; border: 3px solid var(--line); border-radius: 18px;
+      padding: 10px 14px; margin: 0 auto 16px; max-width: 520px; text-align: left;
+    }
+    .ticket b { color: var(--green); }
+    .row { display: grid; gap: 12px; }
+    @media (min-width: 640px) { .row.two { grid-template-columns: 1fr 1fr; } }
+    .choice {
+      min-height: 72px; background: #fff; border: 4px solid var(--line);
+      border-radius: 22px; padding: 12px; display: flex; flex-direction: column;
+      align-items: center; gap: 8px; color: inherit; text-align: center;
+    }
+    .choice img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 14px; }
+    .choice .lab { font-size: 1.35rem; font-weight: 700; }
+    .choice .lab-zh { font-size: .9rem; color: var(--muted); }
+    .choice:hover { border-color: var(--yellow); }
+    .choice.ok { border-color: var(--ok); background: #eaf7f3; }
+    .choice.bad { border-color: var(--bad); background: #fde8e8; }
+    .big {
+      display: block; width: 100%; min-height: 72px; margin: 10px 0;
+      border: 0; border-radius: 22px; background: var(--yellow); color: var(--wood);
+      font-size: 1.35rem; font-weight: 700; box-shadow: 0 5px 0 var(--wood2);
+    }
+    .big:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--wood2); }
+    .big.blue { background: var(--blue); color: #fff; box-shadow: 0 5px 0 #0b5a73; }
+    .big.green { background: var(--ok); color: #fff; box-shadow: 0 5px 0 #1b5e54; }
+    .big:disabled { opacity: .45; box-shadow: none; transform: none; }
+    .name-in {
+      width: 100%; max-width: 420px; min-height: 64px; margin: 8px auto 12px;
+      display: block; font-family: inherit; font-size: 1.5rem; font-weight: 700;
+      text-align: center; border: 4px solid var(--wood); border-radius: 18px;
+      padding: 8px 12px; background: #fff; color: var(--ink);
+    }
+    .feedback { min-height: 1.6em; text-align: center; font-size: 1.2rem; font-weight: 700; margin: 8px 0; }
+    .stage {
+      background: #fff; border: 4px solid var(--line); border-radius: 24px;
+      padding: 12px 12px 16px; text-align: center;
+    }
+    .counter { font-size: 1.5rem; color: var(--wood); margin: 6px 0; }
+    .prog { text-align: center; font-weight: 700; color: var(--wood2); margin: 0 0 10px; }
+    .steps { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+    .dot {
+      min-width: 36px; height: 36px; border-radius: 999px; background: #eee;
+      display: grid; place-items: center; font-size: .8rem; color: var(--muted);
+    }
+    .dot.now { background: var(--yellow); color: var(--wood); font-weight: 700; }
+    .dot.done { background: var(--ok); color: #fff; }
+
+    .svg-stage { width: 100%; max-width: 520px; margin: 0 auto; }
+    .svg-stage svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+    .talk {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border: 3px solid var(--line); border-radius: 20px;
+      padding: 10px 12px; margin: 0 0 12px; text-align: left;
+    }
+    .talk img { width: 84px; height: 84px; border-radius: 18px; object-fit: cover; background: #fff; flex-shrink: 0; }
+    .who { margin: 0; font-size: .9rem; color: var(--muted); font-weight: 700; }
+    .line { margin: 4px 0 0; font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+    .line b { color: var(--green); }
+    .hear {
+      min-width: 56px; min-height: 56px; border-radius: 14px; border: 3px solid var(--yellow);
+      background: #fff; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .modal {
+      position: fixed; inset: 0; background: rgba(51, 39, 34, .5);
+      display: none; place-items: center; z-index: 40; padding: 20px;
+    }
+    .modal.on { display: grid; }
+    .fb-card {
+      background: #fff; border: 6px solid var(--yellow); border-radius: 28px;
+      padding: 22px 18px 18px; text-align: center; max-width: 440px; width: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    }
+    .fb-emoji { font-size: 4rem; line-height: 1; margin-bottom: 8px; }
+    .hint { font-size: 1.05rem; color: var(--wood); font-weight: 700; margin: 8px 0 0; }
+    .prop { visibility: hidden; pointer-events: none; }
+    #cup { visibility: visible; }
+    svg[data-mode="slice"] .for-slice,
+    svg[data-mode="put"] .for-put,
+    svg[data-mode="pour"] .for-pour,
+    svg[data-mode="smash"] .for-smash,
+    svg[data-mode="stir"] .for-stir,
+    svg[data-mode="ice"] .for-ice { visibility: visible; pointer-events: auto; cursor: pointer; }
+    [data-act] { cursor: pointer; }
+    svg[data-mode="slice"] #knife,
+    svg[data-mode="slice"] #wholeLemon,
+    svg[data-mode="put"] #boardSlices,
+    svg[data-mode="pour"] #pot,
+    svg[data-mode="smash"] #spoon,
+    svg[data-mode="stir"] #spoon,
+    svg[data-mode="ice"] #iceBowl { animation: pulse-hit 1.2s ease-in-out infinite; }
+
+    #wholeLemon { transform-origin: 78px 150px; }
+    #knife { transform-origin: 70px 70px; }
+    #pot { transform-origin: 310px 110px; }
+    #spoon { transform-origin: 200px 70px; }
+    #cupLemons, #teaSpin { transform-origin: 200px 170px; }
+    .cut-slice { opacity: 0; }
+    .in-cup { opacity: 0; }
+    .ice { opacity: 0; }
+    .stream { opacity: 0; }
+    .steam { opacity: 0; }
+    .swirl { opacity: 0; }
+    svg[data-mode="stir"] #teaSpin { opacity: 0.7; }
+    svg[data-mode="pour"] #targetLine { opacity: 1; }
+    #targetLine { opacity: 0; stroke: #5C3A21; }
+    svg[data-fill="low"] #targetLine { stroke: #E07A5F; }
+    svg[data-fill="ok"] #targetLine { stroke: #1B7A4E; }
+    svg[data-fill="high"] #targetLine { stroke: #C1121F; }
+    #spill { opacity: 0; }
+    svg.spill-on #spill { opacity: .85; }
+
+    svg.chop #knife { animation: chop .32s ease; }
+    svg.slicing #wholeLemon { animation: wobble .32s ease; }
+    svg.pouring #pot { animation: tilt .45s ease; }
+    svg.pouring .stream { animation: stream .45s ease; }
+    svg.smash-hit #spoon { animation: smashDown .28s ease; }
+    svg.smash-hit #cupLemons { animation: squash .28s ease; }
+    svg.stirring #teaSpin { opacity: .7; }
+    svg.stirring #cupLemons,
+    svg.stirring #teaSpin { animation: spinOnce .55s linear; }
+    svg.stirring #spoon { animation: stirLR .55s ease-in-out; }
+    svg.steaming .steam { animation: steam 1.8s ease-in-out infinite; }
+    svg.drop-ice .ice.falling { animation: fall .4s ease-out forwards; }
+
+    svg[data-n="1"] .cut-slice.s1,
+    svg[data-n="2"] .cut-slice.s1,
+    svg[data-n="3"] .cut-slice.s1,
+    svg[data-n="2"] .cut-slice.s2,
+    svg[data-n="3"] .cut-slice.s2,
+    svg[data-n="3"] .cut-slice.s3 { opacity: 1; }
+
+    svg[data-mode="slice"][data-n="3"] #wholeLemon { opacity: 0; }
+
+    svg[data-put="1"] .in-cup.c1,
+    svg[data-put="2"] .in-cup.c1, svg[data-put="2"] .in-cup.c2,
+    svg[data-put="3"] .in-cup.c1, svg[data-put="3"] .in-cup.c2, svg[data-put="3"] .in-cup.c3 { opacity: 1; }
+
+    svg[data-put="1"] .cut-slice.s1,
+    svg[data-put="2"] .cut-slice.s1, svg[data-put="2"] .cut-slice.s2,
+    svg[data-put="3"] .cut-slice { opacity: 0; }
+
+    @keyframes chop {
+      0% { transform: rotate(20deg) translate(0,0); }
+      50% { transform: rotate(-25deg) translate(8px, 28px); }
+      100% { transform: rotate(10deg) translate(0,0); }
+    }
+    @keyframes wobble {
+      0%,100% { transform: rotate(0); }
+      40% { transform: rotate(-12deg) scale(.96,1.04); }
+      70% { transform: rotate(8deg); }
+    }
+    @keyframes tilt {
+      0% { transform: rotate(0); }
+      40%, 80% { transform: rotate(-38deg); }
+      100% { transform: rotate(-10deg); }
+    }
+    @keyframes stream {
+      0% { opacity: 0; }
+      30%, 80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes smashDown {
+      0% { transform: rotate(8deg) translate(0,0); }
+      45% { transform: rotate(18deg) translate(4px, 26px); }
+      100% { transform: rotate(6deg) translate(0, 8px); }
+    }
+    @keyframes squash {
+      0%,100% { transform: scale(1,1); }
+      45% { transform: scale(1.12, 0.62); }
+    }
+    @keyframes stirLR {
+      0% { transform: translateX(-22px) rotate(-12deg); }
+      100% { transform: translateX(22px) rotate(12deg); }
+    }
+    @keyframes spinOnce { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes steam {
+      0%,100% { opacity: .15; transform: translateY(0); }
+      50% { opacity: .7; transform: translateY(-10px); }
+    }
+    @keyframes fall {
+      0% { opacity: 1; transform: translateY(-70px) scale(.6); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes pulse-hit {
+      0%, 100% { filter: drop-shadow(0 0 2px #FFD166); }
+      50% { filter: drop-shadow(0 0 12px #FFD166) drop-shadow(0 0 4px #5C3A21); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      svg.chop #knife, svg.slicing #wholeLemon, svg.pouring #pot,
+      svg.pouring .stream, svg.smash-hit #spoon, svg.smash-hit #cupLemons,
+      svg.stirring #cupLemons, svg.stirring #teaSpin, svg.stirring #spoon,
+      svg.steaming .steam, svg.drop-ice .ice.falling,
+      svg[data-mode="slice"] #knife, svg[data-mode="slice"] #wholeLemon,
+      svg[data-mode="put"] #boardSlices, svg[data-mode="pour"] #pot,
+      svg[data-mode="smash"] #spoon, svg[data-mode="stir"] #spoon, svg[data-mode="ice"] #iceBowl { animation: none; }
+      .big:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="bar">
+      <img src="images/logo.png" alt="Sunshine Cafe">
+      <div class="grow">
+        <h1>Sunshine Cafe</h1>
+        <p>Make Lemon Tea · 沖檸檬茶</p>
+      </div>
+      <button class="icon-btn" id="speakBtn" type="button" aria-label="Read aloud">🔊</button>
+      <button class="icon-btn" id="muteBtn" type="button" aria-label="Mute">🔈</button>
+    </header>
+
+    <section id="title" class="screen on hero">
+      <img class="mascot" src="images/staff.png" alt="Cafe barista">
+      <p class="en">Welcome to Sunshine Cafe.</p>
+      <p class="zh">歡迎來到 Sunshine Cafe。</p>
+      <label class="zh" for="nameIn">Type your name · 寫你嘅名</label>
+      <input class="name-in" id="nameIn" type="text" autocomplete="name" maxlength="24" placeholder="Your name">
+      <p class="en">You are the barista.</p>
+      <p class="zh">你是咖啡師，負責沖檸檬茶。</p>
+      <button class="big" id="startBtn" type="button">Start · 開始</button>
+    </section>
+
+    <section id="order" class="screen">
+      <div class="talk">
+        <img src="images/staff.png" alt="Staff">
+        <div class="grow">
+          <p class="who">Staff · 職員</p>
+          <p class="prog" id="custNum">Customer 1 / 5</p>
+          <p class="line">What can I get for you today?</p>
+          <p class="zh" style="margin:4px 0 0">今日想叫咩？</p>
+        </div>
+        <button class="hear" id="hearStaff" type="button" aria-label="Hear staff">🔊</button>
+      </div>
+      <div class="talk">
+        <img src="images/customer.png" alt="Customer" id="custFace">
+        <div class="grow">
+          <p class="who" id="custWho">Customer · 客人</p>
+          <p class="line" id="custLine">I'd like to have <b>hot lemon tea</b>.</p>
+          <p class="zh" id="custZh" style="margin:4px 0 0">我想要熱檸檬茶。</p>
+        </div>
+        <button class="hear" id="hearCust" type="button" aria-label="Hear customer">🔊</button>
+      </div>
+      <p class="en" style="text-align:center;font-size:1.4rem">Tap the correct drink.</p>
+      <p class="zh" style="text-align:center">撳啱嗰杯圖</p>
+      <div class="row two" id="drinkOpts"></div>
+      <p class="feedback" id="pickFb"></p>
+    </section>
+
+    <section id="cook" class="screen">
+      <div class="ticket" id="ticket"></div>
+      <div class="steps" id="stepDots"></div>
+      <div class="stage">
+        <p class="en" id="cookEn"></p>
+        <p class="zh" id="cookZh"></p>
+        <div class="svg-stage">
+          <svg id="kitchen" viewBox="0 0 400 280" role="img" aria-label="Kitchen">
+            <defs>
+              <linearGradient id="potGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FBBF24"/>
+                <stop offset="1" stop-color="#B45309"/>
+              </linearGradient>
+              <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#F8FAFC"/>
+                <stop offset="1" stop-color="#94A3B8"/>
+              </linearGradient>
+              <linearGradient id="teaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E8C547"/>
+                <stop offset="1" stop-color="#A16207"/>
+              </linearGradient>
+              <linearGradient id="spoonMetal" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFFFFF"/>
+                <stop offset="0.35" stop-color="#D1D5DB"/>
+                <stop offset="1" stop-color="#6B7280"/>
+              </linearGradient>
+              <linearGradient id="spoonWood" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#C4A484"/>
+                <stop offset="1" stop-color="#6B3F24"/>
+              </linearGradient>
+              <clipPath id="teaClip">
+                <path d="M162 126 L170 202 Q200 222 230 202 L238 126 Z"/>
+              </clipPath>
+            </defs>
+            <rect width="400" height="280" rx="18" fill="#FFF3E0"/>
+            <rect x="0" y="210" width="400" height="70" fill="#E8D5C4"/>
+            <rect x="0" y="210" width="400" height="10" fill="#C4A484"/>
+
+            <g id="knife" class="prop for-slice" data-act="slice" role="button" tabindex="0" aria-label="Slice the lemon">
+              <rect x="12" y="8" width="110" height="90" fill="transparent"/>
+              <rect x="30" y="48" width="12" height="58" rx="3" fill="#6B3F24"/>
+              <rect x="32" y="50" width="4" height="54" rx="1" fill="#C4A484" opacity=".5"/>
+              <path d="M36 48 L36 14 L98 34 L36 48Z" fill="url(#blade)" stroke="#6B7280" stroke-width="1.5"/>
+            </g>
+
+            <g id="wholeLemon" class="prop for-slice" data-act="slice" role="button" tabindex="0" aria-label="Lemon">
+              <rect x="36" y="114" width="90" height="80" fill="transparent"/>
+              <ellipse cx="78" cy="152" rx="38" ry="30" fill="#E0A800"/>
+              <ellipse cx="78" cy="150" rx="36" ry="28" fill="#F5C518"/>
+              <ellipse cx="64" cy="140" rx="10" ry="14" fill="#FFE37A" opacity=".75"/>
+              <path d="M50 150 Q78 132 106 150" fill="none" stroke="#E0A800" stroke-width="1" opacity=".4"/>
+              <circle cx="112" cy="150" r="6" fill="#5B7A2A"/>
+              <circle cx="114" cy="148" r="2" fill="#8FBF3A"/>
+            </g>
+            <g id="boardSlices" class="prop for-slice for-put" data-act="put" role="button" tabindex="0" aria-label="Lemon slices">
+              <rect x="24" y="170" width="110" height="44" fill="transparent"/>
+              <g class="cut-slice s1">
+                <ellipse cx="48" cy="188" rx="18" ry="11" fill="#F5C518" stroke="#D4A017" stroke-width="2"/>
+                <circle cx="48" cy="188" r="7" fill="#FFF4B0"/>
+                <path d="M48 181 L48 195 M41 188 L55 188" stroke="#F0D060" stroke-width="1"/>
+              </g>
+              <g class="cut-slice s2">
+                <ellipse cx="78" cy="196" rx="18" ry="11" fill="#F8D24A" stroke="#D4A017" stroke-width="2"/>
+                <circle cx="78" cy="196" r="7" fill="#FFF4B0"/>
+                <path d="M78 189 L78 203 M71 196 L85 196" stroke="#F0D060" stroke-width="1"/>
+              </g>
+              <g class="cut-slice s3">
+                <ellipse cx="108" cy="188" rx="18" ry="11" fill="#F5C518" stroke="#D4A017" stroke-width="2"/>
+                <circle cx="108" cy="188" r="7" fill="#FFF4B0"/>
+                <path d="M108 181 L108 195 M101 188 L115 188" stroke="#F0D060" stroke-width="1"/>
+              </g>
+            </g>
+
+            <g id="iceBowl" class="prop for-ice" data-act="ice" role="button" tabindex="0" aria-label="Add twelve cubes of ice">
+              <ellipse cx="78" cy="176" rx="54" ry="16" fill="#6B3F24"/>
+              <path d="M28 150 Q28 176 78 176 Q128 176 128 150 Q128 132 78 132 Q28 132 28 150Z" fill="#F3FBFF" stroke="#7EB8D4" stroke-width="3"/>
+              <rect x="50" y="140" width="18" height="18" rx="3" fill="#D7F0FA" stroke="#8EC4D8"/>
+              <rect x="70" y="136" width="18" height="18" rx="3" fill="#fff" stroke="#8EC4D8"/>
+              <rect x="90" y="142" width="18" height="18" rx="3" fill="#CDEBFA" stroke="#8EC4D8"/>
+              <rect x="60" y="152" width="16" height="16" rx="3" fill="#fff" stroke="#8EC4D8"/>
+              <rect x="80" y="154" width="16" height="16" rx="3" fill="#D7F0FA" stroke="#8EC4D8"/>
+              <rect x="24" y="120" width="110" height="80" fill="transparent"/>
+            </g>
+
+            <g id="pot" class="prop for-pour" data-act="pour" role="button" tabindex="0" aria-label="Pour the lemon tea">
+              <rect x="286" y="44" width="100" height="100" fill="transparent"/>
+              <ellipse cx="330" cy="74" rx="30" ry="11" fill="#92400E"/>
+              <rect x="302" y="74" width="56" height="50" rx="12" fill="url(#potGrad)"/>
+              <rect x="318" y="58" width="24" height="18" rx="4" fill="#78350F"/>
+              <path d="M358 86 C380 84, 384 112, 360 118" fill="none" stroke="#92400E" stroke-width="7" stroke-linecap="round"/>
+              <ellipse cx="318" cy="96" rx="8" ry="16" fill="#FDE68A" opacity=".35"/>
+              <path class="stream" d="M298 118 C288 142, 246 152, 226 168" fill="none" stroke="#C9842A" stroke-width="8" stroke-linecap="round"/>
+            </g>
+
+            <g id="cup">
+              <path d="M155 118 L166 210 Q200 232 234 210 L245 118 Z" fill="#F8FAFC" stroke="#5C3A21" stroke-width="4"/>
+              <path d="M245 136 C270 136, 272 178, 242 180" fill="none" stroke="#5C3A21" stroke-width="5"/>
+              <ellipse cx="200" cy="118" rx="46" ry="10" fill="#FFF8F0" stroke="#5C3A21" stroke-width="4"/>
+              <rect id="teaRect" clip-path="url(#teaClip)" x="155" y="208" width="90" height="0" fill="url(#teaGrad)"/>
+              <g id="teaSpin" clip-path="url(#teaClip)" opacity="0">
+                <ellipse cx="200" cy="168" rx="28" ry="10" fill="none" stroke="#fff" stroke-width="2" opacity=".45"/>
+                <ellipse cx="200" cy="176" rx="18" ry="6" fill="none" stroke="#FFE08A" stroke-width="2" opacity=".5"/>
+                <path d="M178 160 Q200 148 222 166" fill="none" stroke="#fff" stroke-width="2" opacity=".4"/>
+              </g>
+              <line id="targetLine" x1="166" y1="157" x2="234" y2="157" stroke="#5C3A21" stroke-width="3.5" stroke-dasharray="7 5"/>
+              <g class="steam">
+                <path d="M178 108 C178 96, 186 96, 186 86" fill="none" stroke="#bbb" stroke-width="3" stroke-linecap="round"/>
+                <path d="M200 102 C200 90, 208 90, 208 80" fill="none" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+                <path d="M220 108 C220 96, 228 96, 228 86" fill="none" stroke="#bbb" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <g id="cupLemons">
+                <ellipse class="in-cup c1" cx="186" cy="168" rx="14" ry="8" fill="#F5C518" stroke="#D4A017" stroke-width="2"/>
+                <ellipse class="in-cup c2" cx="204" cy="158" rx="14" ry="8" fill="#F8D24A" stroke="#D4A017" stroke-width="2"/>
+                <ellipse class="in-cup c3" cx="218" cy="172" rx="14" ry="8" fill="#F5C518" stroke="#D4A017" stroke-width="2"/>
+              </g>
+              <g id="icePack">
+                <rect class="ice i1" x="176" y="148" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i2" x="194" y="142" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i3" x="212" y="150" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i4" x="184" y="162" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i5" x="202" y="160" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i6" x="170" y="172" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i7" x="188" y="176" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i8" x="206" y="174" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i9" x="178" y="186" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i10" x="196" y="188" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i11" x="214" y="184" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i12" x="188" y="154" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i13" x="172" y="158" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i14" x="208" y="166" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+                <rect class="ice i15" x="182" y="146" width="14" height="14" rx="2" fill="#CDEBFA" stroke="#7EB8D4"/>
+                <rect class="ice i16" x="200" y="180" width="14" height="14" rx="2" fill="#E6F6FF" stroke="#7EB8D4"/>
+              </g>
+              <path d="M168 128 L172 200" stroke="#fff" stroke-width="4" opacity=".28" stroke-linecap="round"/>
+            </g>
+            <g id="spill">
+              <ellipse cx="200" cy="228" rx="48" ry="10" fill="#C9842A" opacity=".55"/>
+              <ellipse cx="230" cy="232" rx="18" ry="6" fill="#C9842A" opacity=".4"/>
+            </g>
+
+            <g id="spoon" class="prop for-smash for-stir" data-act="spoon" role="button" tabindex="0" aria-label="Spoon">
+              <rect x="178" y="28" width="44" height="160" fill="transparent"/>
+              <rect x="197" y="32" width="6" height="118" rx="3" fill="url(#spoonMetal)" stroke="#4B5563" stroke-width="1"/>
+              <rect x="196" y="28" width="8" height="36" rx="3" fill="url(#spoonWood)"/>
+              <rect x="197.5" y="30" width="2.5" height="30" rx="1" fill="#E8D5C4" opacity=".5"/>
+              <ellipse cx="200" cy="168" rx="11" ry="16" fill="url(#spoonMetal)" stroke="#4B5563" stroke-width="1.6"/>
+              <ellipse cx="200" cy="172" rx="6" ry="9" fill="#9CA3AF" opacity=".35"/>
+              <ellipse cx="197" cy="164" rx="3.5" ry="5" fill="#fff" opacity=".45"/>
+            </g>
+          </svg>
+        </div>
+        <p class="counter" id="cookCount"></p>
+        <p class="hint" id="cookHint">Tap the picture · 撳圖</p>
+        <button class="big" id="nextStepBtn" type="button">Next step · 下一步</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="fbModal" class="modal" role="dialog" aria-labelledby="fbEn">
+    <div class="fb-card">
+      <div class="fb-emoji" id="fbEmoji">⭐</div>
+      <p class="en" id="fbEn">Great job!</p>
+      <p class="zh" id="fbZh">做得好！</p>
+      <button class="big blue" id="sayHereBtn" type="button">Here you are.</button>
+      <button class="big" id="sayThanksBtn" type="button">Thank you!</button>
+      <button class="big" id="nextCustBtn" type="button">Next customer · 下一位客人</button>
+    </div>
+  </div>
+
+  <div id="retryModal" class="modal" role="dialog" aria-labelledby="retryEn">
+    <div class="fb-card">
+      <div class="fb-emoji" id="retryEmoji">🍋</div>
+      <p class="en" id="retryEn">Let's try this step again!</p>
+      <p class="zh" id="retryZh">再做一次呢一步！</p>
+      <button class="big" id="retryBtn" type="button">Try again · 再做一次</button>
+    </div>
+  </div>
+
+  <div id="sumModal" class="modal" role="dialog" aria-labelledby="sumEn">
+    <div class="fb-card">
+      <div class="fb-emoji" id="sumEmoji">⭐</div>
+      <p class="en" id="sumEn">Your accuracy: 100%</p>
+      <p class="zh" id="sumZh">準確率</p>
+      <p class="hint" id="sumDetail"></p>
+      <button class="big" id="sumAgainBtn" type="button">Play again · 再做一次</button>
+    </div>
+  </div>
+
+  <script>
+    const IMG = "images/";
+    const TOTAL = 5;
+    let muted = false;
+    let drink = "hot";
+    let custI = 0;
+    let roundDrinks = [];
+    let notes = [];
+    let iceN = 0;
+    let stepI = 0;
+    let count = 0;
+    let putN = 0;
+    let teaLevel = 0;
+    let stats = { tries: 0, hits: 0 };
+    let playerName = "friend";
+    const svg = () => document.getElementById("kitchen");
+
+    const GUESTS = [
+      { name: "Bernice" },
+      { name: "Tom" },
+      { name: "Amy" },
+      { name: "Ken" },
+      { name: "May" }
+    ];
+
+    const sfx = {
+      ctx: null,
+      init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === "suspended") this.ctx.resume();
+      },
+      tone(freq, type, dur, vol) {
+        if (muted || !this.ctx) return;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = type; o.frequency.value = freq;
+        g.gain.setValueAtTime(vol, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(); o.stop(this.ctx.currentTime + dur);
+      },
+      chop() { this.init(); this.tone(320, "triangle", 0.12, 0.18); this.tone(180, "sawtooth", 0.06, 0.08); },
+      pour() { this.init(); this.tone(240 + Math.random() * 80, "triangle", 0.1, 0.12); },
+      stir() { this.init(); this.tone(420, "sine", 0.08, 0.1); },
+      ice() { this.init(); this.tone(620, "sine", 0.08, 0.16); this.tone(880, "sine", 0.1, 0.1); },
+      ok() { this.init(); this.tone(880, "sine", 0.12, 0.16); setTimeout(() => this.tone(1174, "sine", 0.18, 0.16), 90); },
+      spill() { this.init(); this.tone(160, "sawtooth", 0.15, 0.1); }
+    };
+
+    const say = (text) => {
+      if (!text || muted || !("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-GB";
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    };
+
+    const show = (id) => {
+      document.querySelectorAll(".screen").forEach((s) => s.classList.remove("on"));
+      document.getElementById(id).classList.add("on");
+    };
+
+    const who = () => playerName || "friend";
+    const drinkName = () => drink === "iced" ? "iced lemon tea" : "hot lemon tea";
+    const drinkZh = () => drink === "iced" ? "凍檸檬茶" : "熱檸檬茶";
+    const orderLine = () => "I'd like to have " + drinkName() + ".";
+
+    const shuffle = (arr) => arr.map((x) => ({ x, r: Math.random() })).sort((a, b) => a.r - b.r).map((o) => o.x);
+
+    const startRound = () => {
+      custI = 0;
+      stats = { tries: 0, hits: 0 };
+      roundDrinks = shuffle(["hot", "hot", "iced", "iced", Math.random() < 0.5 ? "hot" : "iced"]);
+      newOrder();
+    };
+
+    const markTry = (ok) => {
+      stats.tries += 1;
+      if (ok) stats.hits += 1;
+    };
+
+    const accuracy = () => stats.tries ? Math.round((stats.hits / stats.tries) * 100) : 100;
+
+    const newOrder = () => {
+      const guest = GUESTS[custI];
+      drink = roundDrinks[custI];
+      document.getElementById("custNum").textContent = "Customer " + (custI + 1) + " / " + TOTAL;
+      document.getElementById("custWho").textContent = guest.name + " · 客人";
+      document.getElementById("custLine").innerHTML = "I'd like to have <b>" + drinkName() + "</b>.";
+      document.getElementById("custZh").textContent = "我想要" + drinkZh() + "。";
+      document.getElementById("pickFb").textContent = "";
+      const box = document.getElementById("drinkOpts");
+      box.innerHTML = "";
+      shuffle([
+        { key: "hot", img: "lemon-tea.png", en: "hot lemon tea", zh: "熱檸檬茶" },
+        { key: "iced", img: "iced-lemon-tea.png", en: "iced lemon tea", zh: "凍檸檬茶" }
+      ]).forEach((opt) => {
+        const b = document.createElement("button");
+        b.className = "choice";
+        b.type = "button";
+        b.innerHTML = `<img src="${IMG + opt.img}" alt="${opt.en}"><span class="lab">${opt.en}</span><span class="lab-zh">${opt.zh}</span>`;
+        b.onclick = () => pickDrink(opt.key, b);
+        box.appendChild(b);
+      });
+      show("order");
+      document.getElementById("fbModal").classList.remove("on");
+      sfx.init();
+      say("What can I get for you today? " + orderLine());
+    };
+
+    const pickDrink = (key, btn) => {
+      const box = document.getElementById("drinkOpts");
+      if (key === drink) {
+        markTry(true);
+        box.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+        btn.classList.add("ok");
+        document.getElementById("pickFb").textContent = "Yes, " + who() + "! Let's make lemon tea!";
+        sfx.ok();
+        say("Yes, " + who() + "! I'd like to have " + drinkName() + ". Let's make lemon tea!");
+        setTimeout(startCook, 800);
+      } else {
+        markTry(false);
+        btn.classList.add("bad");
+        document.getElementById("pickFb").textContent = who() + ", look again! 再睇一次！";
+        say(who() + ", look again. I'd like to have " + drinkName() + ".");
+        sfx.spill();
+        setTimeout(() => btn.classList.remove("bad"), 700);
+      }
+    };
+
+    const showFeedback = () => {
+      const pour = notes.find((n) => n.key === "pour") || { mark: "ok" };
+      let emoji = "⭐";
+      let en = "Great job, " + who() + "! Perfect " + drinkName() + "!";
+      let zh = who() + "，好叻！呢杯" + drinkZh() + "好靚！";
+      if (pour.mark === "little") {
+        emoji = "🍋";
+        en = "Good try, " + who() + "! A little more tea next time. Still yummy!";
+        zh = who() + "，唔錯！下次茶可以再倒多啲。仍然好飲！";
+      } else if (pour.mark === "much") {
+        emoji = "👍";
+        en = "Yummy, " + who() + "! A little too much tea — still a kind barista!";
+        zh = who() + "，好飲！茶倒多咗少少，仍然做得好！";
+      }
+      const ice = notes.find((n) => n.key === "ice");
+      if (ice && ice.mark === "little") {
+        en = "Nice " + drinkName() + ", " + who() + "! Add more ice next time.";
+        zh = who() + "，好靚嘅" + drinkZh() + "！下次可以再加多幾粒冰。";
+        emoji = "🧊";
+      } else if (ice && ice.mark === "much") {
+        en = "Wow, " + who() + "! Lots of ice. Still happy!";
+        zh = who() + "，冰好多！客人仍然鍾意。";
+        emoji = "🎉";
+      }
+      document.getElementById("fbEmoji").textContent = emoji;
+      document.getElementById("fbEn").textContent = en;
+      document.getElementById("fbZh").textContent = zh;
+      const btn = document.getElementById("nextCustBtn");
+      if (custI + 1 >= TOTAL) {
+        btn.textContent = "See my score · 睇成績";
+      } else {
+        btn.textContent = "Next customer · 下一位客人";
+      }
+      document.getElementById("fbModal").classList.add("on");
+      sfx.ok();
+      say("Here you are, " + who() + ". " + en);
+    };
+
+    const cookSteps = () => {
+      const steps = [
+        { key: "slice", max: 3, target: 3, en: "Slice the lemon.", zh: "撳檸檬或刀。切完自己撳下一步。", hint: "Tap lemon / knife, then Next step." },
+        { key: "put", max: 3, target: 3, en: "Put three slices of lemon into the cup.", zh: "將三片檸檬放入杯中。然後撳下一步。", hint: "Tap three slices, then Next step." },
+        { key: "pour", max: 14, target: 7, en: drink === "iced" ? "Pour the iced lemon tea." : "Pour the hot lemon tea.", zh: "倒熱／凍檸檬茶到虛線。然後撳下一步。", hint: "Fill to the dotted line, then Next step." },
+        { key: "smash", max: 8, target: 3, en: "Smash the lemon.", zh: "撳匙羹壓檸檬。然後撳下一步。", hint: "Tap the spoon to smash, then Next step." },
+        { key: "stir", max: 12, target: 6, en: "Stir the lemon tea.", zh: "攪動檸檬茶。撳一下郁一下。", hint: "One tap, one stir." }
+      ];
+      if (drink === "iced") {
+        steps.push({ key: "ice", max: 16, target: 12, en: "Add twelve cubes of ice.", zh: "加入十二粒冰塊。然後撳下一步。", hint: "Add twelve cubes of ice, then Next step." });
+      }
+      return steps;
+    };
+
+    let steps = [];
+
+    const bumpClass = (name) => {
+      const el = svg();
+      el.classList.remove(name);
+      void el.offsetWidth;
+      el.classList.add(name);
+      setTimeout(() => el.classList.remove(name), 500);
+    };
+
+    let locked = false;
+
+    const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
+
+    const failMessage = (st) => {
+      if (!st) return null;
+      if ((st.key === "slice" || st.key === "put") && count < 3) {
+        return {
+          emoji: "🍋",
+          en: who() + ", we need three slices of lemon. Let's try again!",
+          zh: who() + "，要三片檸檬。再做一次！"
+        };
+      }
+      if (st.key === "smash" && count < 3) {
+        return {
+          emoji: "🥄",
+          en: who() + ", smash the lemon with the spoon. Try again!",
+          zh: who() + "，用匙羹壓檸檬。再做一次！"
+        };
+      }
+      if (st.key === "pour" && count >= 10) {
+        return {
+          emoji: "🫖",
+          en: who() + ", too much lemon tea! Pour again to the dotted line.",
+          zh: who() + "，檸檬茶太多喇！倒到虛線再試。"
+        };
+      }
+      if (st.key === "pour" && count <= 4) {
+        return {
+          emoji: "🫖",
+          en: who() + ", not enough lemon tea. Pour to the dotted line.",
+          zh: who() + "，檸檬茶唔夠。倒到虛線。"
+        };
+      }
+      if (st.key === "ice" && count < 12) {
+        return {
+          emoji: "🧊",
+          en: who() + ", we need twelve cubes of ice. Try again!",
+          zh: who() + "，要十二粒冰。再做一次！"
+        };
+      }
+      if (st.key === "ice" && count > 12) {
+        return {
+          emoji: "🧊",
+          en: who() + ", too many cubes of ice. Try again!",
+          zh: who() + "，冰太多。再做一次！"
+        };
+      }
+      return null;
+    };
+
+    const resetCurrentStep = () => {
+      const st = steps[stepI];
+      document.getElementById("retryModal").classList.remove("on");
+      if (!st) return;
+      if (st.key === "slice") count = 0;
+      if (st.key === "put") { putN = 0; count = 0; }
+      if (st.key === "pour") { teaLevel = 0; count = 0; }
+      if (st.key === "ice") {
+        iceN = 0; count = 0;
+        document.querySelectorAll("#icePack .ice").forEach((n) => {
+          n.classList.remove("falling");
+          n.style.opacity = "";
+        });
+      }
+      if (st.key === "stir") count = 0;
+      if (st.key === "smash") count = 0;
+      setKitchen();
+      updateCount();
+      say(st.en);
+    };
+
+    const markFor = (st) => {
+      if (st.key === "pour") {
+        if (count <= 4) return "little";
+        if (count >= 10) return "much";
+        return "ok";
+      }
+      if (st.key === "ice") {
+        if (count < 12) return "little";
+        if (count > 12) return "much";
+        return "ok";
+      }
+      if (count < st.target) return "little";
+      return "ok";
+    };
+
+    const setKitchen = () => {
+      const el = svg();
+      const st = steps[stepI];
+      if (!st) return;
+      el.setAttribute("data-mode", st.key);
+      el.setAttribute("data-n", st.key === "slice" ? String(Math.min(count, 3)) : "3");
+      el.setAttribute("data-put", String(putN));
+      el.setAttribute("data-spin", st.key === "stir" && count > 0 ? "1" : "0");
+      el.classList.toggle("steaming", drink === "hot" && teaLevel > 0);
+      el.classList.toggle("spill-on", teaLevel >= 12);
+
+      const fill = st.key === "pour" ? count : teaLevel;
+      let fillState = "low";
+      if (fill >= 10) fillState = "high";
+      else if (fill >= 5) fillState = "ok";
+      el.setAttribute("data-fill", fillState);
+      const h = Math.min(96, (fill / 12) * 96);
+      const tea = document.getElementById("teaRect");
+      tea.setAttribute("height", String(h));
+      tea.setAttribute("y", String(208 - h));
+      tea.setAttribute("fill", drink === "iced" ? "#F3E27A" : "url(#teaGrad)");
+    };
+
+    const startCook = () => {
+      resetKitchen();
+      notes = [];
+      iceN = 0;
+      steps = cookSteps();
+      stepI = 0;
+      putN = 0;
+      count = 0;
+      show("cook");
+      document.getElementById("ticket").innerHTML =
+        `Customer ${custI + 1} / ${TOTAL} · ${GUESTS[custI].name}<br><b>I'd like to have ${drinkName()}.</b><br><span class="zh">我想要${drinkZh()}。</span>`;
+      document.getElementById("stepDots").innerHTML =
+        steps.map((_, i) => `<span class="dot" id="dot${i}">${i + 1}</span>`).join("");
+      renderStep();
+    };
+
+    const renderStep = () => {
+      const st = steps[stepI];
+      count = st.key === "pour" ? teaLevel : (st.key === "ice" ? iceN : 0);
+      if (st.key === "put") count = putN;
+      locked = false;
+      document.getElementById("cookEn").textContent = st.en;
+      document.getElementById("cookZh").textContent = st.zh;
+      document.getElementById("cookHint").textContent = st.hint;
+      steps.forEach((_, i) => {
+        document.getElementById("dot" + i).className = "dot" + (i < stepI ? " done" : i === stepI ? " now" : "");
+      });
+      setKitchen();
+      updateCount();
+      say(st.en);
+    };
+
+    const updateCount = () => {
+      const st = steps[stepI];
+      let t = count + "";
+      if (st.key === "pour") t = count + "  ·  dotted line";
+      else if (st.key === "ice") t = WORDS[count] ? (WORDS[count] + "  ·  twelve cubes of ice") : (count + "  ·  twelve cubes of ice");
+      else t = count + " / " + st.target;
+      document.getElementById("cookCount").textContent = t;
+      setKitchen();
+    };
+
+    const doAct = () => {
+      const st = steps[stepI];
+      if (!st || count >= st.max) return;
+      count += 1;
+      if (st.key === "slice") { bumpClass("chop"); bumpClass("slicing"); sfx.chop(); }
+      if (st.key === "put") { putN = count; sfx.chop(); }
+      if ((st.key === "slice" || st.key === "put") && count <= 3) say(WORDS[count]);
+      if (st.key === "ice" && WORDS[count]) say(WORDS[count]);
+      if (st.key === "pour") {
+        teaLevel = count;
+        bumpClass("pouring");
+        if (count >= 12) sfx.spill(); else sfx.pour();
+      }
+      if (st.key === "smash") { bumpClass("smash-hit"); sfx.chop(); }
+      if (st.key === "stir") { bumpClass("stirring"); sfx.stir(); }
+      if (st.key === "ice") {
+        iceN = count;
+        const cube = document.querySelector("#icePack .ice.i" + count);
+        if (cube) {
+          cube.classList.add("falling");
+          cube.style.opacity = "1";
+        }
+        bumpClass("drop-ice");
+        sfx.ice();
+      }
+      updateCount();
+    };
+
+    const nextStep = () => {
+      const st = steps[stepI];
+      const fail = failMessage(st);
+      if (fail) {
+        markTry(false);
+        document.getElementById("retryEmoji").textContent = fail.emoji;
+        document.getElementById("retryEn").textContent = fail.en;
+        document.getElementById("retryZh").textContent = fail.zh;
+        document.getElementById("retryModal").classList.add("on");
+        sfx.spill();
+        say(fail.en);
+        return;
+      }
+      if (st) {
+        markTry(true);
+        notes.push({ key: st.key, count, mark: markFor(st) });
+      }
+      stepI += 1;
+      if (stepI >= steps.length) {
+        showFeedback();
+        return;
+      }
+      renderStep();
+    };
+
+    const resetKitchen = () => {
+      putN = 0;
+      count = 0;
+      teaLevel = 0;
+      iceN = 0;
+      const el = svg();
+      el.setAttribute("data-mode", "slice");
+      el.setAttribute("data-n", "0");
+      el.setAttribute("data-put", "0");
+      el.className = "";
+      document.getElementById("teaRect").setAttribute("height", "0");
+      document.getElementById("teaRect").setAttribute("y", "208");
+      document.querySelectorAll("#icePack .ice").forEach((n) => {
+        n.classList.remove("falling");
+        n.style.opacity = "";
+      });
+    };
+
+    const showSummary = () => {
+      const pct = accuracy();
+      let emoji = "⭐";
+      let comment = "Sunshine Cafe star!";
+      let zh = "好叻！Cafe 之星！";
+      if (pct < 70) {
+        emoji = "🍋";
+        comment = "Good practice! Keep making lemon tea.";
+        zh = "做得唔錯，再煮多次會更好。";
+      } else if (pct < 90) {
+        emoji = "👍";
+        comment = "Well done! Kind and careful barista.";
+        zh = "做得好！細心嘅咖啡師。";
+      }
+      document.getElementById("sumEmoji").textContent = emoji;
+      document.getElementById("sumEn").textContent = who() + ", your accuracy: " + pct + "%";
+      document.getElementById("sumZh").textContent = who() + "，準確率：" + pct + "%　" + zh;
+      document.getElementById("sumDetail").textContent =
+        stats.hits + " / " + stats.tries + " correct  ·  " + comment;
+      document.getElementById("fbModal").classList.remove("on");
+      document.getElementById("sumModal").classList.add("on");
+      sfx.ok();
+      say(who() + ", your accuracy is " + pct + " percent. " + comment);
+    };
+    document.getElementById("startBtn").onclick = () => {
+      const n = document.getElementById("nameIn").value.trim();
+      if (!n) {
+        say("Please type your name.");
+        document.getElementById("nameIn").focus();
+        return;
+      }
+      playerName = n;
+      startRound();
+    };
+    document.getElementById("nameIn").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("startBtn").click();
+    });
+    document.getElementById("hearStaff").onclick = () => say("What can I get for you today?");
+    document.getElementById("hearCust").onclick = () => say(orderLine());
+    document.getElementById("nextStepBtn").onclick = () => nextStep();
+    document.getElementById("retryBtn").onclick = () => resetCurrentStep();
+    document.getElementById("sayHereBtn").onclick = () => say("Here you are.");
+    document.getElementById("sayThanksBtn").onclick = () => say("Thank you!");
+    document.getElementById("nextCustBtn").onclick = () => {
+      if (custI + 1 >= TOTAL) {
+        showSummary();
+        return;
+      }
+      custI += 1;
+      resetKitchen();
+      newOrder();
+    };
+    document.getElementById("sumAgainBtn").onclick = () => {
+      document.getElementById("sumModal").classList.remove("on");
+      show("title");
+    };
+    const onKitchen = (e) => {
+      const st = steps[stepI];
+      if (!st) return;
+      const hit = e.target.closest("[data-act]");
+      if (!hit) return;
+      const act = hit.getAttribute("data-act");
+      const match = act === st.key || (act === "spoon" && (st.key === "smash" || st.key === "stir"));
+      if (!match) return;
+      e.preventDefault();
+      doAct();
+    };
+    document.getElementById("kitchen").addEventListener("click", onKitchen);
+    document.getElementById("kitchen").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") onKitchen(e);
+    });
+    document.getElementById("speakBtn").onclick = () => {
+      const on = document.querySelector(".screen.on");
+      const en = on ? on.querySelector(".en") : null;
+      say(en ? en.textContent : "Sunshine Cafe");
+    };
+    document.getElementById("muteBtn").onclick = () => {
+      muted = !muted;
+      document.getElementById("muteBtn").textContent = muted ? "🔇" : "🔈";
+      if (muted && "speechSynthesis" in window) window.speechSynthesis.cancel();
+      if (muted && sfx.ctx && sfx.ctx.state === "running") { /* keep ctx */ }
+    };
+  </script>
+</body>
+</html>
