@@ -136,7 +136,8 @@
     svg[data-mode="pour"] .for-pour,
     svg[data-mode="smash"] .for-smash,
     svg[data-mode="stir"] .for-stir,
-    svg[data-mode="ice"] .for-ice { visibility: visible; pointer-events: auto; cursor: pointer; }
+    svg[data-mode="ice"] .for-ice,
+    svg[data-mode="ice1"] .for-ice { visibility: visible; pointer-events: auto; cursor: pointer; }
     [data-act] { cursor: pointer; }
     svg[data-mode="slice"] #knife,
     svg[data-mode="slice"] #wholeLemon,
@@ -144,7 +145,8 @@
     svg[data-mode="pour"] #pot,
     svg[data-mode="smash"] #spoon,
     svg[data-mode="stir"] #spoon,
-    svg[data-mode="ice"] #iceBowl { animation: pulse-hit 1.2s ease-in-out infinite; }
+    svg[data-mode="ice"] #iceBowl,
+    svg[data-mode="ice1"] #iceBowl { animation: pulse-hit 1.2s ease-in-out infinite; }
 
     #wholeLemon { transform-origin: 78px 150px; }
     #knife { transform-origin: 70px 70px; }
@@ -160,6 +162,14 @@
     svg[data-mode="stir"] #teaSpin { opacity: 0.7; }
     svg[data-mode="pour"] #targetLine { opacity: 1; }
     #targetLine { opacity: 0; stroke: #5C3A21; }
+    svg[data-no-tea="1"] #teaRect,
+    svg[data-no-tea="1"] #teaSpin,
+    svg[data-no-tea="1"] .steam,
+    svg[data-no-tea="1"] #targetLine,
+    svg[data-no-tea="1"] #spill { opacity: 0 !important; }
+    svg[data-mode="smash"][data-drink="iced"] #wholeLemon {
+      visibility: hidden; opacity: 0;
+    }
     svg[data-fill="low"] #targetLine { stroke: #E07A5F; }
     svg[data-fill="ok"] #targetLine { stroke: #1B7A4E; }
     svg[data-fill="high"] #targetLine { stroke: #C1121F; }
@@ -250,7 +260,7 @@
       svg.steaming .steam, svg.drop-ice .ice.falling,
       svg[data-mode="slice"] #knife, svg[data-mode="slice"] #wholeLemon,
       svg[data-mode="put"] #boardSlices, svg[data-mode="pour"] #pot,
-      svg[data-mode="smash"] #spoon, svg[data-mode="stir"] #spoon, svg[data-mode="ice"] #iceBowl { animation: none; }
+      svg[data-mode="smash"] #spoon, svg[data-mode="stir"] #spoon, svg[data-mode="ice"] #iceBowl, svg[data-mode="ice1"] #iceBowl { animation: none; }
       .big:active { transform: none; }
     }
   </style>
@@ -662,17 +672,23 @@
     };
 
     const cookSteps = () => {
-      const steps = [
+      if (drink === "iced") {
+        return [
+          { key: "slice", max: 3, target: 3, en: "Slice the lemon.", zh: "撳檸檬或刀。切完自己撳下一步。", hint: "Tap lemon / knife, then Next step." },
+          { key: "put", max: 3, target: 3, en: "Put three slices of lemon into the cup.", zh: "將三片檸檬放入杯中。然後撳下一步。", hint: "Tap three slices, then Next step." },
+          { key: "smash", max: 8, target: 3, en: "Smash the lemon.", zh: "撳匙羹壓檸檬。杯裡未有茶。然後撳下一步。", hint: "Tap the spoon. No tea yet." },
+          { key: "ice", max: 16, target: 12, en: "Add twelve cubes of ice.", zh: "加入十二粒冰塊。然後撳下一步。", hint: "Add twelve cubes of ice, then Next step." },
+          { key: "pour", max: 14, target: 7, en: "Pour the iced lemon tea.", zh: "倒凍檸檬茶到虛線。然後撳下一步。", hint: "Fill to the dotted line, then Next step." },
+          { key: "stir", max: 12, target: 6, en: "Stir the lemon tea.", zh: "攪動檸檬茶。撳一下郁一下。", hint: "One tap, one stir." }
+        ];
+      }
+      return [
         { key: "slice", max: 3, target: 3, en: "Slice the lemon.", zh: "撳檸檬或刀。切完自己撳下一步。", hint: "Tap lemon / knife, then Next step." },
         { key: "put", max: 3, target: 3, en: "Put three slices of lemon into the cup.", zh: "將三片檸檬放入杯中。然後撳下一步。", hint: "Tap three slices, then Next step." },
-        { key: "pour", max: 14, target: 7, en: drink === "iced" ? "Pour the iced lemon tea." : "Pour the hot lemon tea.", zh: "倒熱／凍檸檬茶到虛線。然後撳下一步。", hint: "Fill to the dotted line, then Next step." },
+        { key: "pour", max: 14, target: 7, en: "Pour the hot lemon tea.", zh: "倒熱檸檬茶到虛線。然後撳下一步。", hint: "Fill to the dotted line, then Next step." },
         { key: "smash", max: 8, target: 3, en: "Smash the lemon.", zh: "撳匙羹壓檸檬。然後撳下一步。", hint: "Tap the spoon to smash, then Next step." },
         { key: "stir", max: 12, target: 6, en: "Stir the lemon tea.", zh: "攪動檸檬茶。撳一下郁一下。", hint: "One tap, one stir." }
       ];
-      if (drink === "iced") {
-        steps.push({ key: "ice", max: 16, target: 12, en: "Add twelve cubes of ice.", zh: "加入十二粒冰塊。然後撳下一步。", hint: "Add twelve cubes of ice, then Next step." });
-      }
-      return steps;
     };
 
     let steps = [];
@@ -719,6 +735,13 @@
           zh: who() + "，檸檬茶唔夠。倒到虛線。"
         };
       }
+      if (st.key === "ice1" && count < 1) {
+        return {
+          emoji: "🧊",
+          en: who() + ", add an ice cube. Try again!",
+          zh: who() + "，加入一粒冰塊。再做一次！"
+        };
+      }
       if (st.key === "ice" && count < 12) {
         return {
           emoji: "🧊",
@@ -743,7 +766,7 @@
       if (st.key === "slice") count = 0;
       if (st.key === "put") { putN = 0; count = 0; }
       if (st.key === "pour") { teaLevel = 0; count = 0; }
-      if (st.key === "ice") {
+      if (st.key === "ice" || st.key === "ice1") {
         iceN = 0; count = 0;
         document.querySelectorAll("#icePack .ice").forEach((n) => {
           n.classList.remove("falling");
@@ -777,13 +800,16 @@
       const st = steps[stepI];
       if (!st) return;
       el.setAttribute("data-mode", st.key);
+      el.setAttribute("data-drink", drink);
       el.setAttribute("data-n", st.key === "slice" ? String(Math.min(count, 3)) : "3");
       el.setAttribute("data-put", String(putN));
       el.setAttribute("data-spin", st.key === "stir" && count > 0 ? "1" : "0");
+      const noTea = drink === "iced" && (st.key === "smash" || st.key === "ice" || st.key === "ice1");
+      el.setAttribute("data-no-tea", noTea ? "1" : "0");
       el.classList.toggle("steaming", drink === "hot" && teaLevel > 0);
-      el.classList.toggle("spill-on", teaLevel >= 12);
+      el.classList.toggle("spill-on", !noTea && teaLevel >= 12);
 
-      const fill = st.key === "pour" ? count : teaLevel;
+      const fill = noTea ? 0 : (st.key === "pour" ? count : teaLevel);
       let fillState = "low";
       if (fill >= 10) fillState = "high";
       else if (fill >= 5) fillState = "ok";
@@ -802,6 +828,7 @@
       steps = cookSteps();
       stepI = 0;
       putN = 0;
+      teaLevel = 0;
       count = 0;
       show("cook");
       document.getElementById("ticket").innerHTML =
@@ -813,7 +840,7 @@
 
     const renderStep = () => {
       const st = steps[stepI];
-      count = st.key === "pour" ? teaLevel : (st.key === "ice" ? iceN : 0);
+      count = st.key === "pour" ? teaLevel : ((st.key === "ice" || st.key === "ice1") ? iceN : 0);
       if (st.key === "put") count = putN;
       locked = false;
       document.getElementById("cookEn").textContent = st.en;
@@ -831,6 +858,7 @@
       const st = steps[stepI];
       let t = count + "";
       if (st.key === "pour") t = count + "  ·  dotted line";
+      else if (st.key === "ice1") t = (WORDS[count] || count) + "  ·  an ice cube";
       else if (st.key === "ice") t = WORDS[count] ? (WORDS[count] + "  ·  twelve cubes of ice") : (count + "  ·  twelve cubes of ice");
       else t = count + " / " + st.target;
       document.getElementById("cookCount").textContent = t;
@@ -844,7 +872,7 @@
       if (st.key === "slice") { bumpClass("chop"); bumpClass("slicing"); sfx.chop(); }
       if (st.key === "put") { putN = count; sfx.chop(); }
       if ((st.key === "slice" || st.key === "put") && count <= 3) say(WORDS[count]);
-      if (st.key === "ice" && WORDS[count]) say(WORDS[count]);
+      if ((st.key === "ice" || st.key === "ice1") && WORDS[count]) say(WORDS[count]);
       if (st.key === "pour") {
         teaLevel = count;
         bumpClass("pouring");
@@ -852,7 +880,7 @@
       }
       if (st.key === "smash") { bumpClass("smash-hit"); sfx.chop(); }
       if (st.key === "stir") { bumpClass("stirring"); sfx.stir(); }
-      if (st.key === "ice") {
+      if (st.key === "ice" || st.key === "ice1") {
         iceN = count;
         const cube = document.querySelector("#icePack .ice.i" + count);
         if (cube) {
@@ -970,7 +998,7 @@
       const hit = e.target.closest("[data-act]");
       if (!hit) return;
       const act = hit.getAttribute("data-act");
-      const match = act === st.key || (act === "spoon" && (st.key === "smash" || st.key === "stir"));
+      const match = act === st.key || (act === "spoon" && (st.key === "smash" || st.key === "stir")) || (act === "ice" && (st.key === "ice" || st.key === "ice1"));
       if (!match) return;
       e.preventDefault();
       doAct();
